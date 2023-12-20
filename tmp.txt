@@ -21,3 +21,8 @@ follower
 where
 follower_user_id = 1;
 );
+
+if(1)
+{
+    console.log("Hello")
+}

@@ -170,7 +170,71 @@ app.get('/user/following/', authenticateToken, async (request, response) => {
 
 })
 
+// API 5
+app.get('/user/followers/', authenticateToken, async (request, response) => {
+    const username = request.username
+    //Get the user_id of the user
+    const userId = await getUserId(username)
 
+    const follwerrQuery =
+        `SELECT 
+        username 
+        FROM user 
+        WHERE user_id 
+        IN (
+        SELECT 
+        follower_user_id 
+        FROM 
+        follower 
+        WHERE 
+        following_user_id = ${userId}
+        );
+        `
+    const followers = await db.all(follwerrQuery)
+    response.send(followers)
+})
+
+//API 6
+app.get('/tweets/:tweetId/', authenticateToken, async (request, response) => {
+    const username = request.username
+    const { tweetId } = request.params
+    const userId = await getUserId(username)
+
+    const followingQuery =
+        `
+    select 1 FROM
+    follower WHERE 
+    follower_user_id = ${userId} AND
+    following_user_id = 
+    (SELECT user_id from tweet WHERE tweet_id = ${tweetId});
+    `
+    const isFollowing = await db.get(followingQuery)
+    // console.log(isFollowing)
+
+    if (!isFollowing) {
+        console.log("not following")
+        response.status(401)
+        response.send("Invalid Request")
+    }
+    else {
+        console.log("following")
+        const countQuery =
+            `SELECT
+            t.tweet, 
+            count(distinct l.user_id) as 'likes', 
+            count(distinct r.reply_id) as 'replies', 
+            t.date_time as 'date_time'
+            FROM
+            tweet t, like l, reply r
+            WHERE
+            t.tweet_id = r.tweet_id AND
+            t.tweet_id = l.tweet_id AND
+            t.tweet_id = ${tweetId};
+            `
+        const likeReplyCount = await db.get(countQuery)
+        response.send(likeReplyCount)
+    }
+})
 const getUserId = async (username) => {
     const user_id = await db.get(`select user_id from user where username = '${username}';`)
         .then((user) => { return user.user_id })
