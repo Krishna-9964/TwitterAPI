@@ -236,6 +236,39 @@ app.get('/tweets/:tweetId/', authenticateToken, async (request, response) => {
     }
 })
 
+
+//API 9
+app.get('/user/tweets/', authenticateToken, async (request, response) => {
+    const username = request.username
+
+    const userId = await getUserId(username)
+    const tweetsQuery = `
+      SELECT tweet.tweet, COUNT(like.like_id) AS likes, COUNT(reply.reply_id) AS replies, 
+      tweet.date_time AS dateTime
+      FROM tweet
+      INNER JOIN like ON tweet.tweet_id = like.tweet_id
+      INNER JOIN reply ON tweet.tweet_id = reply.tweet_id
+      WHERE tweet.user_id = '${userId}'
+      GROUP BY tweet.tweet_id;`
+    const tweetsDataResponse = await db.all(tweetsQuery)
+    response.send(tweetsDataResponse)
+})
+
+
+//API 10
+app.post('/user/tweets/', authenticateToken, async (request, response) => {
+    const { tweet } = request.body
+    const username = request.username
+
+    const userId = await getUserId(username)
+    const query = `
+      INSERT INTO 
+          tweet(tweet, user_id)
+      VALUES ('${tweet}', ${userId});`
+    await db.run(query)
+    response.send('Created a Tweet')
+})
+
 //API 11
 app.delete('/tweets/:tweetId/', authenticateToken, async (request, response) => {
     const username = request.username
@@ -284,3 +317,5 @@ app.get('/', authenticateToken, (request, response) => {
     console.log(request.username)
     response.send("authenticated")
 })
+
+module.exports = app
