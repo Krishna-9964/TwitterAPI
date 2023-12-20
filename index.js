@@ -235,6 +235,44 @@ app.get('/tweets/:tweetId/', authenticateToken, async (request, response) => {
         response.send(likeReplyCount)
     }
 })
+
+//API 11
+app.delete('/tweets/:tweetId/', authenticateToken, async (request, response) => {
+    const username = request.username
+    const userId = await getUserId(username)
+    const { tweetId } = request.params
+
+    //Query to check whether the user is allowed delete the tweet or not
+    const allowedQuery =
+        `SELECT 1 
+        FROM tweet 
+        WHERE 
+        tweet_id = ${tweetId} AND user_id = ${userId}; `
+
+    const isAllowed = await db.get(allowedQuery)
+    if (isAllowed) {
+        console.log("Allowed to delete")
+
+        //Delete the tweet
+        const deleteQuery =
+            `DELETE
+            FROM 
+            tweet
+            where tweet_id = ${tweetId};
+            `
+        await db.run(deleteQuery)
+        response.send("Tweet Removed")
+    }
+    else {
+        console.log("Not allowed to delete")
+        response.status(401)
+        response.send("Invalid Request")
+    }
+})
+
+
+
+
 const getUserId = async (username) => {
     const user_id = await db.get(`select user_id from user where username = '${username}';`)
         .then((user) => { return user.user_id })

@@ -43,3 +43,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvZ
 # API 6
 GET http://localhost:3000/tweets/8
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvZUJpZGVuIiwiaWF0IjoxNzAzMDA5MzkxfQ.zm8KDjbeD9jvZiA-2JtRkl1ibO2O64cBFhIKOGL2Vv0
+
+###
+#API 11
+DELETE http://localhost:3000/tweets/3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkpvZUJpZGVuIiwiaWF0IjoxNzAzMDA5MzkxfQ.zm8KDjbeD9jvZiA-2JtRkl1ibO2O64cBFhIKOGL2Vv0
